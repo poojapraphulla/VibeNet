@@ -3,7 +3,6 @@ import { Models } from 'appwrite'
 import { Link } from 'react-router-dom'
 import PostStats from './PostStats'
 
-
 type GridPostListProps = {
     posts: Models.Document[]
     showUser?: boolean;
