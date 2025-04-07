@@ -1,4 +1,4 @@
-import { ID, ImageGravity, Query } from 'appwrite';
+import { ID, ImageGravity, Models, Query } from 'appwrite';
 import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import { account, appwriteConfig, avatars, databases, storage } from './config';
 // import { console } from 'inspector';
@@ -351,11 +351,11 @@ export async function deletePost(postId:string, imageId: string) {
   }
 }
 
-export async function getInfinitePosts({ pageParam }: { pageParam: number }) {
-  const queries: any[] = [Query.orderDesc('$updatedAt'), Query.limit(10)]
+export async function getInfinitePosts(pageParam: unknown): Promise<Models.DocumentList<Models.Document>> {
+  const queries: any[] = [Query.orderDesc("updatedAt"), Query.limit(10)];
 
-  if(pageParam) {
-    queries.push(Query.cursorAfter(pageParam.toString()));
+  if (pageParam && typeof pageParam === "string") {
+    queries.push(Query.cursorAfter(pageParam));
   }
 
   try {
@@ -363,15 +363,20 @@ export async function getInfinitePosts({ pageParam }: { pageParam: number }) {
       appwriteConfig.databaseId,
       appwriteConfig.postCollectionId,
       queries
-    )
+    );
 
-    if(!posts) throw Error;
+    if (!posts) throw Error;
 
     return posts;
   } catch (error) {
     console.log(error);
+    return {
+      total: 0,
+      documents: [],
+    } as Models.DocumentList<Models.Document>;
   }
 }
+
 
 export async function searchPosts(searchTerm: string) {
   try {
